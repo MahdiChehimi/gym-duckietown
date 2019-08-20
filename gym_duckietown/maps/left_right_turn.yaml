@@ -1,0 +1,19 @@
+# 3x3 tiles with left turns at the corners going in a counter-clockwise loop
+tiles:
+- [asphalt, asphalt, straight/N]
+- [asphalt, asphalt, straight/N]
+- [straight/E, straight/E, 4way/E]
+- [asphalt, asphalt, straight/S]
+- [asphalt, asphalt, straight/S]
+  #- [curve_left/W , straight/W, curve_left/N]
+  #- [straight/S   , straight/S   , straight/N]
+  #- [curve_left/S , straight/E, curve_left/E]
+
+tile_size: 0.585
+
+#objects:
+#
+#- kind: building
+#  pos: [0.4, 1]
+#  rotate: 0
+#  height: 0.08

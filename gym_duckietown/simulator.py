@@ -60,33 +60,18 @@ CAMERA_FLOOR_DIST = 0.108
 # and the center of rotation (6.6cm)
 CAMERA_FORWARD_DIST = 0.066
 
-# Distance (diameter) between the center of the robot wheels (10.2cm)
-WHEEL_DIST = 0.102
-
-# Total robot width at wheel base, used for collision detection
-# Note: the actual robot width is 13cm, but we add a litte bit of buffer
-#       to faciliate sim-to-real transfer.
-ROBOT_WIDTH = 0.13  + 0.02
-
-# Total robot length
-# Note: the center of rotation (between the wheels) is not at the
-#       geometric center see CAMERA_FORWARD_DIST
-ROBOT_LENGTH = 0.18
-
-# Height of the robot, used for scaling
-ROBOT_HEIGHT = 0.12
-
 # Safety radius multiplier
 SAFETY_RAD_MULT = 1.8
-
-# Robot safety circle radius
-AGENT_SAFETY_RAD = (max(ROBOT_LENGTH, ROBOT_WIDTH) / 2) * SAFETY_RAD_MULT
 
 # Minimum distance spawn position needs to be from all objects
 MIN_SPAWN_OBJ_DIST = 0.25
 
 # Road tile dimensions (2ft x 2ft, 61cm wide)
 # self.road_tile_size = 0.61
+
+# Height of the robot, used for scaling
+ROBOT_HEIGHT = 0.12
+
 
 # Maximum forward robot speed in meters/second
 DEFAULT_ROBOT_SPEED = 1.20
@@ -96,7 +81,7 @@ DEFAULT_FRAMERATE = 30
 
 DEFAULT_MAX_STEPS = 1500
 
-DEFAULT_MAP_NAME = 'udem1'
+DEFAULT_MAP_NAME = 'left_right_turn'
 
 DEFAULT_FRAME_SKIP = 1
 
@@ -178,6 +163,21 @@ class Simulator(gym.Env):
         :param distortion: If true, distorts the image with fish-eye approximation
         :param randomize_maps_on_reset: If true, randomizes the map on reset (Slows down training)
         """
+        # Distance (diameter) between the center of the robot wheels (10.2cm)
+        #self.WHEEL_DIST = 0.102
+        self.WHEEL_DIST = 0.402
+        # Total robot width at wheel base, used for collision detection
+        # Note: the actual robot width is 13cm, but we add a litte bit of buffer
+        #       to faciliate sim-to-real transfer.
+        #self.ROBOT_WIDTH = 0.13  + 0.02
+        self.ROBOT_WIDTH = 0.43 + 0.02
+        # Total robot length
+        # Note: the center of rotation (between the wheels) is not at the
+        #       geometric center see CAMERA_FORWARD_DIST
+        self.ROBOT_LENGTH = 0.18
+
+        # Robot safety circle radius
+        self.AGENT_SAFETY_RAD = (max(self.ROBOT_LENGTH, self.ROBOT_WIDTH) / 2) * SAFETY_RAD_MULT
         # first initialize the RNG
         self.seed_value = seed
         self.seed(seed=self.seed_value)
@@ -398,7 +398,7 @@ class Simulator(gym.Env):
         self.ground_color = self._perturb(GROUND_COLOR, 0.3)
 
         # Distance between the robot's wheels
-        self.wheel_dist = self._perturb(WHEEL_DIST)
+        self.wheel_dist = self._perturb(self.WHEEL_DIST)
 
         # Distance bewteen camera and ground
         self.cam_height = self._perturb(CAMERA_FLOOR_DIST, 0.08)
@@ -470,12 +470,14 @@ class Simulator(gym.Env):
             i, j = tile['coords']
 
             # Choose a random position on this tile
-            x = self.np_random.uniform(i, i + 1) * self.road_tile_size
+            x = self.np_random.uniform(i + self.road_tile_size/4, i + 1 - self.road_tile_size/4) * self.road_tile_size
             z = self.np_random.uniform(j, j + 1) * self.road_tile_size
             propose_pos = np.array([x, 0, z])
 
-            # Choose a random direction
-            propose_angle = self.np_random.uniform(0, 2 * math.pi)
+            ## Choose a random direction
+            #propose_angle = self.np_random.uniform(0, 2 * math.pi)
+
+            propose_angle = self.np_random.uniform(-math.pi/8, math.pi/8)
 
             # logger.debug('Sampled %s %s angle %s' % (propose_pos[0],
             #                                          propose_pos[1],
@@ -671,8 +673,8 @@ class Simulator(gym.Env):
                     obj = WorldObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT)
             else:
                 if kind == "duckiebot":
-                    obj = DuckiebotObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT, WHEEL_DIST,
-                                       ROBOT_WIDTH, ROBOT_LENGTH)
+                    obj = DuckiebotObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT, self.WHEEL_DIST,
+                                       self.ROBOT_WIDTH, self.ROBOT_LENGTH)
                 elif kind == "duckie":
                     obj = DuckieObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT, self.road_tile_size)
                 else:
@@ -1105,7 +1107,7 @@ class Simulator(gym.Env):
         means that more of the circles are overlapping
         """
 
-        pos = _actual_center(pos, angle)
+        pos = self._actual_center(pos, angle)
         if len(self.collidable_centers) == 0:
             static_dist = 0
 
@@ -1113,15 +1115,15 @@ class Simulator(gym.Env):
         else:
             d = np.linalg.norm(self.collidable_centers - pos, axis=1)
 
-            if not safety_circle_intersection(d, AGENT_SAFETY_RAD, self.collidable_safety_radii):
+            if not safety_circle_intersection(d, self.AGENT_SAFETY_RAD, self.collidable_safety_radii):
                 static_dist = 0
             else:
-                static_dist = safety_circle_overlap(d, AGENT_SAFETY_RAD, self.collidable_safety_radii)
+                static_dist = safety_circle_overlap(d, self.AGENT_SAFETY_RAD, self.collidable_safety_radii)
 
         total_safety_pen = static_dist
         for obj in self.objects:
             # Find safety penalty w.r.t dynamic obstacles
-            total_safety_pen += obj.proximity(pos, AGENT_SAFETY_RAD)
+            total_safety_pen += obj.proximity(pos, self.AGENT_SAFETY_RAD)
 
         return total_safety_pen
 
@@ -1175,13 +1177,13 @@ class Simulator(gym.Env):
         """
 
         # Compute the coordinates of the base of both wheels
-        pos = _actual_center(pos, angle)
+        pos = self._actual_center(pos, angle)
         f_vec = get_dir_vec(angle)
         r_vec = get_right_vec(angle)
 
-        l_pos = pos - (safety_factor * 0.5 * ROBOT_WIDTH) * r_vec
-        r_pos = pos + (safety_factor * 0.5 * ROBOT_WIDTH) * r_vec
-        f_pos = pos + (safety_factor * 0.5 * ROBOT_LENGTH) * f_vec
+        l_pos = pos - (safety_factor * 0.5 * self.ROBOT_WIDTH) * r_vec
+        r_pos = pos + (safety_factor * 0.5 * self.ROBOT_WIDTH) * r_vec
+        f_pos = pos + (safety_factor * 0.5 * self.ROBOT_LENGTH) * f_vec
 
         # Check that the center position and
         # both wheels are on drivable tiles and no collisions
@@ -1193,7 +1195,7 @@ class Simulator(gym.Env):
 
 
         # Recompute the bounding boxes (BB) for the agent
-        agent_corners = get_agent_corners(pos, angle)
+        agent_corners = self.get_agent_corners(pos, angle)
         no_collision = not self._collision(agent_corners)
 
         res = (no_collision and all_drivable)
@@ -1527,7 +1529,7 @@ class Simulator(gym.Env):
 
         # Draw the agent's own bounding box
         if self.draw_bbox:
-            corners = get_agent_corners(pos, angle)
+            corners = self.get_agent_corners(pos, angle)
             gl.glColor3f(1, 0, 0)
             gl.glBegin(gl.GL_LINE_LOOP)
             gl.glVertex3f(corners[0, 0], 0.01, corners[0, 1])
@@ -1685,6 +1687,25 @@ class Simulator(gym.Env):
 
         # Force execution of queued commands
         gl.glFlush()
+    def _actual_center(self, pos, angle):
+        """
+        Calculate the position of the geometric center of the agent
+        The value of self.cur_pos is the center of rotation.
+        """
+
+        dir_vec = get_dir_vec(angle)
+        return pos + (CAMERA_FORWARD_DIST - (self.ROBOT_LENGTH / 2)) * dir_vec
+
+
+    def get_agent_corners(self, pos, angle):
+        agent_corners = agent_boundbox(
+                self._actual_center(pos, angle),
+                self.ROBOT_WIDTH,
+                self.ROBOT_LENGTH,
+                get_dir_vec(angle),
+                get_right_vec(angle)
+        )
+        return agent_corners
 
 
 def get_dir_vec(cur_angle):
@@ -1744,22 +1765,3 @@ def _update_pos(pos, angle, wheel_dist, wheelVels, deltaTime):
     return pos, angle
 
 
-def _actual_center(pos, angle):
-    """
-    Calculate the position of the geometric center of the agent
-    The value of self.cur_pos is the center of rotation.
-    """
-
-    dir_vec = get_dir_vec(angle)
-    return pos + (CAMERA_FORWARD_DIST - (ROBOT_LENGTH / 2)) * dir_vec
-
-
-def get_agent_corners(pos, angle):
-    agent_corners = agent_boundbox(
-            _actual_center(pos, angle),
-            ROBOT_WIDTH,
-            ROBOT_LENGTH,
-            get_dir_vec(angle),
-            get_right_vec(angle)
-    )
-    return agent_corners

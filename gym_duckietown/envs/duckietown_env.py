@@ -1,6 +1,7 @@
 # coding=utf-8
 import numpy as np
 from gym import spaces
+from collections.abc import Iterable
 
 from ..simulator import Simulator
 from .. import logger
@@ -105,35 +106,65 @@ class DuckietownNav(DuckietownEnv):
 
     def __init__(self, **kwargs):
         self.goal_tile = None
+        self.obs_keys = ['cur_pos', 'robot_speed', 'cur_angle']
         DuckietownEnv.__init__(self, **kwargs)
 
     def reset(self):
-        DuckietownNav.reset(self)
+        DuckietownEnv.reset(self)
 
         # Find the tile the agent starts on
         start_tile_pos = self.get_grid_coords(self.cur_pos)
         start_tile = self._get_tile(*start_tile_pos)
+        
+        ## Select a random goal tile to navigate to
+        #self.goal_tile = self.drivable_tiles[self.np_random.choice(
+        #                        [0, len(self.drivable_tiles) - 1])]
+        self.goal_tile = self.drivable_tiles[len(self.drivable_tiles)-1]
+        #self.goal_tile = self.drivable_tiles[0]
 
-        # Select a random goal tile to navigate to
-        assert len(self.drivable_tiles) > 1
-        while True:
-            tile_idx = self.np_random.randint(0, len(self.drivable_tiles))
-            self.goal_tile = self.drivable_tiles[tile_idx]
-            if self.goal_tile is not start_tile:
-                break
+    def _get_manhattan_dist_to_goal(self):
+        """
+        Returns minimium manhattan distance to closest point on goal tile
+        """
+        goal_tile_coords = self.goal_tile['coords']
+        goal_x_range = np.array([goal_tile_coords[0] * self.road_tile_size,
+                                (goal_tile_coords[0] + 1) * self.road_tile_size])
+        goal_z_range = np.array([goal_tile_coords[1] * self.road_tile_size,
+                                (goal_tile_coords[1] + 1) * self.road_tile_size])
+        x_dist = 0
+        z_dist = 0
+        if self.cur_pos[0] >= goal_x_range[0] and self.cur_pos[0] < goal_x_range[1]:
+            x_dist = 0
+        else:
+            x_dist = np.min(np.abs(self.cur_pos[0] - goal_x_range))
+        if self.cur_pos[2] >= goal_z_range[0] and self.cur_pos[2] < goal_z_range[1]:
+            z_dist = 0
+        else:
+            z_dist = np.min(np.abs(self.cur_pos[2] - goal_z_range))
+        return x_dist + z_dist
 
     def step(self, action):
-        obs, reward, done, info = DuckietownNav.step(self, action)
-
+        _, _, done, info = DuckietownEnv.step(self, action)
+        obs = []
+        for key in self.obs_keys: 
+            information = info['Simulator'][key]
+            if key is 'cur_pos':
+                obs.append(information[0])
+                obs.append(information[2])
+            if isinstance(information, Iterable):
+                obs.extend(information)
+            else:
+                obs.append(information)
         info['goal_tile'] = self.goal_tile
-
-        # TODO: add term to reward based on distance to goal?
+        goal_distance = self._get_manhattan_dist_to_goal()
+        reward = -goal_distance 
 
         cur_tile_coords = self.get_grid_coords(self.cur_pos)
-        cur_tile = self._get_tile(self.cur_tile_coords)
+        cur_tile = self._get_tile(cur_tile_coords[0], cur_tile_coords[1])
 
         if cur_tile is self.goal_tile:
             done = True
-            reward = 1000
-
+        #    reward = 1000
+        #else:
+        #    reward = -1
         return obs, reward, done, info
