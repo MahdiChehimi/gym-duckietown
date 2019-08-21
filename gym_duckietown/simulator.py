@@ -239,6 +239,12 @@ class Simulator(gym.Env):
         #        shape=(self.camera_height, self.camera_width, 3),
         #        dtype=np.uint8
         #)
+        self.image_space = spaces.Box(
+                low=0,
+                high=255,
+                shape=(self.camera_height, self.camera_width, 3),
+                dtype=np.uint8
+        )
 
         self.reward_range = (-1000, 1000)
 
@@ -265,7 +271,7 @@ class Simulator(gym.Env):
         )
 
         # Array to render the image into (for observation rendering)
-        self.img_array = np.zeros(shape=self.observation_space.shape, dtype=np.uint8)
+        self.img_array = np.zeros(shape=self.image_space.shape, dtype=np.uint8)
 
         # Create a frame buffer object for human rendering
         self.multi_fbo_human, self.final_fbo_human = create_frame_buffers(
