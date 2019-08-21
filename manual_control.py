@@ -36,7 +36,7 @@ env = DuckietownNav(
     #draw_bbox = args.draw_bbox,
     #domain_rand = args.domain_rand,
     frame_skip = args.frame_skip,
-    distortion = args.distortion,
+    #distortion = args.distortion,
     user_tile_start = [0, 2],
     full_transparency = True,
 )

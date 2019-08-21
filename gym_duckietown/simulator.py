@@ -164,13 +164,13 @@ class Simulator(gym.Env):
         :param randomize_maps_on_reset: If true, randomizes the map on reset (Slows down training)
         """
         # Distance (diameter) between the center of the robot wheels (10.2cm)
-        #self.WHEEL_DIST = 0.102
-        self.WHEEL_DIST = 0.402
+        self.WHEEL_DIST = 0.102
+        #self.WHEEL_DIST = 0.402
         # Total robot width at wheel base, used for collision detection
         # Note: the actual robot width is 13cm, but we add a litte bit of buffer
         #       to faciliate sim-to-real transfer.
-        #self.ROBOT_WIDTH = 0.13  + 0.02
-        self.ROBOT_WIDTH = 0.43 + 0.02
+        self.ROBOT_WIDTH = 0.13  + 0.02
+        #self.ROBOT_WIDTH = 0.43 + 0.02
         # Total robot length
         # Note: the center of rotation (between the wheels) is not at the
         #       geometric center see CAMERA_FORWARD_DIST
@@ -219,12 +219,12 @@ class Simulator(gym.Env):
         self.graphics = True
 
         # Two-tuple of wheel torques, each in the range [-1, 1]
-        self.action_space = spaces.Box(
-                low=-1,
-                high=1,
-                shape=(2,),
-                dtype=np.float32
-        )
+        #self.action_space = spaces.Box(
+        #        low=-1,
+        #        high=1,
+        #        shape=(2,),
+        #        dtype=np.float32
+        #)
 
         self.camera_width = camera_width
         self.camera_height = camera_height
@@ -233,12 +233,12 @@ class Simulator(gym.Env):
         # We observe an RGB image with pixels in [0, 255]
         # Note: the pixels are in uint8 format because this is more compact
         # than float32 if sent over the network or stored in a dataset
-        self.observation_space = spaces.Box(
-                low=0,
-                high=255,
-                shape=(self.camera_height, self.camera_width, 3),
-                dtype=np.uint8
-        )
+        #self.observation_space = spaces.Box(
+        #        low=0,
+        #        high=255,
+        #        shape=(self.camera_height, self.camera_width, 3),
+        #        dtype=np.uint8
+        #)
 
         self.reward_range = (-1000, 1000)
 
