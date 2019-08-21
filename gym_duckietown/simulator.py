@@ -164,6 +164,7 @@ class Simulator(gym.Env):
         :param distortion: If true, distorts the image with fish-eye approximation
         :param randomize_maps_on_reset: If true, randomizes the map on reset (Slows down training)
         """
+        self.verbose = verbose
         # Distance (diameter) between the center of the robot wheels (10.2cm)
         self.WHEEL_DIST = 0.102
         #self.WHEEL_DIST = 0.402
@@ -318,7 +319,6 @@ class Simulator(gym.Env):
         self.last_action = np.array([0, 0])
         self.wheelVels = np.array([0, 0])
 
-        self.verbose = verbose
         
     def _init_vlists(self):
         import pyglet

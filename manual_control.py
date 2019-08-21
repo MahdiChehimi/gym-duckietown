@@ -40,6 +40,7 @@ env = DuckietownNav(
     distortion = args.distortion,
     user_tile_start = [0, 2],
     full_transparency = True,
+    verbose=False,
 )
 #env = gym.wrappers.Monitor(env, "recording")
 
