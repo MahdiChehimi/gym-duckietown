@@ -144,6 +144,7 @@ class Simulator(gym.Env):
             distortion=False,
             randomize_maps_on_reset=False,
             verbose=True,
+            graphics=True,
     ):
         """
 
@@ -218,7 +219,7 @@ class Simulator(gym.Env):
         self.frame_skip = frame_skip
 
         # Produce graphical output
-        self.graphics = True
+        self.graphics = graphics
 
         # Two-tuple of wheel torques, each in the range [-1, 1]
         #self.action_space = spaces.Box(
