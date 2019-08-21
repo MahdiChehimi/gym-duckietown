@@ -23,7 +23,7 @@ class DuckietownEnv(Simulator):
         **kwargs
     ):
         Simulator.__init__(self, **kwargs)
-        logger.info('using DuckietownEnv')
+        if self.verbose: logger.info('using DuckietownEnv')
 
         #self.action_space = spaces.Box(
         #    low=np.array([-1,-1]),

@@ -4,6 +4,7 @@
 *.swp
 *.swo
 .idea/
+.recordings/
 
 xvfb.log
 bin
