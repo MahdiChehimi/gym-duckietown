@@ -1342,11 +1342,11 @@ class Simulator(gym.Env):
         action = np.clip(action, -1, 1)
         # Actions could be a Python list
         action = np.array(action)
-        
         frame_skip = self.frame_skip
         if self.domain_rand:
             frame_skip = self.randomization_settings["frame_skip"]
         
+        old_angle, old_pos, old_speed = self.cur_angle, self.cur_pos, self.speed 
         for _ in range(frame_skip):
             self.update_physics(action)
 
@@ -1355,6 +1355,14 @@ class Simulator(gym.Env):
         misc = self.get_agent_info()
 
         d = self._compute_done_reward()
+        if d.done_code == 'invalid-pose':
+            self.cur_angle = old_angle
+            self.cur_pos = old_pos
+            self.speed = old_speed
+            d.done = False
+            d.done_why = ''
+            d.done_code = 'in-progress'
+            d.reward = self.compute_reward(self.cur_pos, self.cur_angle, self.speed)
         misc['Simulator']['msg'] = d.done_why
 
         return obs, d.reward, d.done, misc
