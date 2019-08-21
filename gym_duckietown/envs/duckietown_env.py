@@ -2,7 +2,7 @@
 import numpy as np
 from gym import spaces
 from collections.abc import Iterable
-
+from gym.utils import EzPickle
 from ..simulator import Simulator
 from .. import logger
 
@@ -99,7 +99,7 @@ class DuckietownLF(DuckietownEnv):
         return obs, reward, done, info
 
 
-class DuckietownNav(DuckietownEnv):
+class DuckietownNav(DuckietownEnv, EzPickle):
     """
     Environment for the Duckietown navigation task (NAV)
     """
@@ -108,6 +108,7 @@ class DuckietownNav(DuckietownEnv):
         self.goal_tile = None
         self.obs_keys = ['cur_pos', 'robot_speed', 'cur_angle']
         DuckietownEnv.__init__(self, **kwargs)
+        EzPickle.__init__(self)
 
     def reset(self):
         DuckietownEnv.reset(self)
