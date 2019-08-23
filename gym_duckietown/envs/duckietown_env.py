@@ -168,4 +168,4 @@ class DuckietownNav(DuckietownEnv, EzPickle):
         #    reward = 1000
         #else:
         #    reward = -1
-        return obs, reward, done, info
+        return np.array(obs), reward, done, info
