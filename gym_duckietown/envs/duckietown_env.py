@@ -133,7 +133,7 @@ class DuckietownNav(DuckietownEnv, EzPickle):
                 obs.extend(information)
             else:
                 obs.append(information)
-        return obs
+        return np.array(obs)
 
 
     def _get_manhattan_dist_to_goal(self):
@@ -178,6 +178,7 @@ class DuckietownNav(DuckietownEnv, EzPickle):
 
         if cur_tile is self.goal_tile:
             done = True
+            reward = 1000
         #    reward = 1000
         #else:
         #    reward = -1
