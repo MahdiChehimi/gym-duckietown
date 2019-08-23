@@ -122,6 +122,19 @@ class DuckietownNav(DuckietownEnv, EzPickle):
         #                        [0, len(self.drivable_tiles) - 1])]
         self.goal_tile = self.drivable_tiles[len(self.drivable_tiles)-1]
         #self.goal_tile = self.drivable_tiles[0]
+        info = self.get_agent_info()
+        obs = []
+        for key in self.obs_keys: 
+            information = info['Simulator'][key]
+            if key is 'cur_pos':
+                obs.append(information[0])
+                obs.append(information[2])
+            if isinstance(information, Iterable):
+                obs.extend(information)
+            else:
+                obs.append(information)
+        return obs
+
 
     def _get_manhattan_dist_to_goal(self):
         """
