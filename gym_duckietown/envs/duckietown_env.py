@@ -129,7 +129,7 @@ class DuckietownNav(DuckietownEnv, EzPickle):
             if key is 'cur_pos':
                 obs.append(information[0])
                 obs.append(information[2])
-            if isinstance(information, Iterable):
+            elif isinstance(information, Iterable):
                 obs.extend(information)
             else:
                 obs.append(information)
@@ -165,7 +165,7 @@ class DuckietownNav(DuckietownEnv, EzPickle):
             if key is 'cur_pos':
                 obs.append(information[0])
                 obs.append(information[2])
-            if isinstance(information, Iterable):
+            elif isinstance(information, Iterable):
                 obs.extend(information)
             else:
                 obs.append(information)
