@@ -60,8 +60,6 @@ CAMERA_FLOOR_DIST = 0.108
 # and the center of rotation (6.6cm)
 CAMERA_FORWARD_DIST = 0.066
 
-# Safety radius multiplier
-SAFETY_RAD_MULT = 1.8
 
 # Minimum distance spawn position needs to be from all objects
 MIN_SPAWN_OBJ_DIST = 0.25
@@ -179,8 +177,11 @@ class Simulator(gym.Env):
         #       geometric center see CAMERA_FORWARD_DIST
         self.ROBOT_LENGTH = 0.18
 
+        # Safety radius multiplier
+        self.SAFETY_RAD_MULT = 1.8
+
         # Robot safety circle radius
-        self.AGENT_SAFETY_RAD = (max(self.ROBOT_LENGTH, self.ROBOT_WIDTH) / 2) * SAFETY_RAD_MULT
+        self.AGENT_SAFETY_RAD = (max(self.ROBOT_LENGTH, self.ROBOT_WIDTH) / 2) * self.SAFETY_RAD_MULT
         # first initialize the RNG
         self.seed_value = seed
         self.seed(seed=self.seed_value)
@@ -678,15 +679,15 @@ class Simulator(gym.Env):
             # obj = None
             if static:
                 if kind == "trafficlight":
-                    obj = TrafficLightObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT)
+                    obj = TrafficLightObj(obj_desc, self.domain_rand, self.SAFETY_RAD_MULT)
                 else:
-                    obj = WorldObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT)
+                    obj = WorldObj(obj_desc, self.domain_rand, self.SAFETY_RAD_MULT)
             else:
                 if kind == "duckiebot":
-                    obj = DuckiebotObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT, self.WHEEL_DIST,
+                    obj = DuckiebotObj(obj_desc, self.domain_rand, self.SAFETY_RAD_MULT, self.WHEEL_DIST,
                                        self.ROBOT_WIDTH, self.ROBOT_LENGTH)
                 elif kind == "duckie":
-                    obj = DuckieObj(obj_desc, self.domain_rand, SAFETY_RAD_MULT, self.road_tile_size)
+                    obj = DuckieObj(obj_desc, self.domain_rand, self.SAFETY_RAD_MULT, self.road_tile_size)
                 else:
                     msg = 'I do not know what object this is: %s' % kind
                     raise Exception(msg)
