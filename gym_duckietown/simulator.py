@@ -315,11 +315,11 @@ class Simulator(gym.Env):
             self.map_names = os.listdir('maps')
             self.map_names = [mapfile.replace('.yaml', '') for mapfile in self.map_names]
 
+        self.last_action = np.array([0, 0])
+        self.wheelVels = np.array([0, 0])
         # Initialize the state
         self.reset()
 
-        self.last_action = np.array([0, 0])
-        self.wheelVels = np.array([0, 0])
 
         
     def _init_vlists(self):
