@@ -36,11 +36,13 @@ env = DuckietownNav(
     #draw_curve = args.draw_curve,
     #draw_bbox = args.draw_bbox,
     #domain_rand = args.domain_rand,
+    domain_rand = False,
     frame_skip = args.frame_skip,
     distortion = args.distortion,
     user_tile_start = [0, 2],
     full_transparency = True,
-    verbose=False,
+    verbose=True,
+    graphics = True
 )
 #env = gym.wrappers.Monitor(env, "recording")
 

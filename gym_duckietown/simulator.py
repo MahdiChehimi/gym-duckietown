@@ -1365,7 +1365,7 @@ class Simulator(gym.Env):
             self.cur_pos = old_pos
             self.speed = old_speed
             d.done = False
-            d.done_why = ''
+            d.done_why = 'hit-wall'
             d.done_code = 'in-progress'
             d.reward = self.compute_reward(self.cur_pos, self.cur_angle, self.speed)
         misc['Simulator']['msg'] = d.done_why
