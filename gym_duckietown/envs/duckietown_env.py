@@ -176,8 +176,8 @@ class DuckietownNav(DuckietownEnv, EzPickle):
         cur_tile_coords = self.get_grid_coords(self.cur_pos)
         cur_tile = self._get_tile(cur_tile_coords[0], cur_tile_coords[1])
         
-        if info['Simulator']['msg'] == 'hit-wall':
-            reward = -5
+        #if info['Simulator']['msg'] == 'hit-wall':
+        #    reward = -5
 
         if cur_tile is self.goal_tile:
             done = True
