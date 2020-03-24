@@ -27,7 +27,7 @@ parser.add_argument('--distortion', default=False, action='store_true')
 #parser.add_argument('--draw-curve', action='store_true', help='draw the lane following curve')
 #parser.add_argument('--draw-bbox', action='store_true', help='draw collision detection bounding boxes')
 #parser.add_argument('--domain-rand', action='store_true', help='enable domain randomization')
-parser.add_argument('--frame-skip', default=1, type=int, help='number of frames to skip')
+parser.add_argument('--frame-skip', default=2, type=int, help='number of frames to skip')
 parser.add_argument('--seed', default=1, type=int, help='seed')
 args = parser.parse_args()
 env = DuckietownNav(

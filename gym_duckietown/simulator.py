@@ -19,6 +19,7 @@ import gym
 import yaml
 from gym import spaces
 from gym.utils import seeding
+import copy
 
 from .collision import *
 # Objects utility code
@@ -1349,9 +1350,8 @@ class Simulator(gym.Env):
         action = np.array(action)
         frame_skip = self.frame_skip
         if self.domain_rand:
-            frame_skip = self.randomization_settings["frame_skip"]
-        
-        old_angle, old_pos, old_speed = self.cur_angle, self.cur_pos, self.speed 
+            frame_skip = self.randomization_settings["frame_skip"] 
+        old_angle, old_pos, old_speed = self.cur_angle, copy.deepcopy(self.cur_pos), self.speed
         for _ in range(frame_skip):
             self.update_physics(action)
 
@@ -1361,8 +1361,21 @@ class Simulator(gym.Env):
 
         d = self._compute_done_reward()
         if d.done_code == 'invalid-pose':
-            self.cur_angle = old_angle
+            # Project position onto boundary
+            #new_pos = copy.deepcopy(self.cur_pos)
+            #self.cur_pos = copy.deepcopy(old_pos)
+            #self.cur_pos[0] = new_pos[0]
+            #d = self._compute_done_reward()
+            #if d.done_code == 'invalid-pose':
+            #    self.cur_pos = copy.deepcopy(old_pos)
+            #    self.cur_pos[2] = new_pos[2]
+            #    d = self._compute_done_reward()
+            #if d.done_code == 'invalid-pose':
+            #    self.cur_angle = old_angle
+            #    self.cur_pos = old_pos
+            #self.speed = 0
             self.cur_pos = old_pos
+            self.cur_angle = old_angle
             self.speed = old_speed
             d.done = False
             d.done_why = 'hit-wall'
@@ -1646,7 +1659,7 @@ class Simulator(gym.Env):
         if self.distortion and not self.undistort and mode != "free_cam":
             img = self.camera_model.distort(img)
 
-        if mode == 'rgb_array':
+        if mode == 'rgb_array' or 'top_down':
             return img
 
         from pyglet import gl, window, image

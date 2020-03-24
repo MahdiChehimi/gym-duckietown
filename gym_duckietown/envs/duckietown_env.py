@@ -116,7 +116,6 @@ class DuckietownNav(DuckietownEnv, EzPickle):
         # Find the tile the agent starts on
         start_tile_pos = self.get_grid_coords(self.cur_pos)
         start_tile = self._get_tile(*start_tile_pos)
-        
         ## Select a random goal tile to navigate to
         #self.goal_tile = self.drivable_tiles[self.np_random.choice(
         #                        [0, len(self.drivable_tiles) - 1])]
@@ -160,7 +159,7 @@ class DuckietownNav(DuckietownEnv, EzPickle):
     def step(self, action):
         _, _, done, info = DuckietownEnv.step(self, action)
         obs = []
-        for key in self.obs_keys: 
+        for key in self.obs_keys:
             information = info['Simulator'][key]
             if key is 'cur_pos':
                 obs.append(information[0])
@@ -171,18 +170,19 @@ class DuckietownNav(DuckietownEnv, EzPickle):
                 obs.append(information)
         info['goal_tile'] = self.goal_tile
         goal_distance = self._get_manhattan_dist_to_goal()
-        reward = -goal_distance 
+        reward = -goal_distance
 
         cur_tile_coords = self.get_grid_coords(self.cur_pos)
         cur_tile = self._get_tile(cur_tile_coords[0], cur_tile_coords[1])
-        
+
         #if info['Simulator']['msg'] == 'hit-wall':
         #    reward = -5
 
         if cur_tile is self.goal_tile:
             done = True
-            reward = 1000
+            reward = 100
         #    reward = 1000
         #else:
         #    reward = -1
+        hit_wall = info['Simulator']['msg']
         return np.array(obs), reward, done, info
